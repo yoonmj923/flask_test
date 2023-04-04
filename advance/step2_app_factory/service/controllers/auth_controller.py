@@ -11,6 +11,8 @@ from datetime import datetime, timedelta
 from flask import current_app
 import jwt
 
+import bcrypt
+
 # ~/auth
 @auth.route('/')
 def home():
@@ -27,9 +29,9 @@ def login():
         # 1. uid, upw 획득
         uid = request.form.get('uid')
         upw = request.form.get('upw')
-        # 2. uid, upw로 회원이 존재하는지 체크->(원래디비, 임시로값비교)
+        # 2. uid, upw로 회원이 존재하는지 체크 -> (원래 디비, 임시로 값 비교)
         if uid=='guest' and upw=='1234':
-            # 3. 회원이면 토큰 생성 (규격, 만료시간, 암호알고리즘 지정,..)
+            # 3. 회원이면 토큰 생성 (규격, 만료시간, 암호 알고리즘 지정,..)
             payload = { 
                 # 저장할 정보는 알아서 구성(고객 정보가 기반)
                 'id':uid,
@@ -50,6 +52,14 @@ def logout():
 
 @auth.route('/signup')
 def signup():
+    # TODO : 비밀번호 암호화
+    password = '1234'
+    # 암호화된 값은 디비에 패스워드 컬럼에 저장
+    # 암호화
+    b = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+    # 확인 및 복호화
+    # bcrypt.checkpw() => 이것으로 암호가 일치하는지만 체크해서 로그인시 활용
+    print( password, b, bcrypt.checkpw(password.encode('utf-8'), b) )
     return "auth signup"
 
 @auth.route('/delete')
